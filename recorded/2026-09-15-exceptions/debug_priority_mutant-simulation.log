@@ -1,0 +1,14 @@
+DEBUG_IRQ_PRIORITY_FAILED: interrupt acknowledged during debug entry
+STATE_TIMEOUT: controller did not reach expected state
+DEBUG_ENTRY_FAILED: halt request did not save HALTREQ cause
+DEBUG_ENTRY_FAILED: controller did not enter halted debug mode
+IRQ_MASK_IN_DEBUG_FAILED: interrupt acknowledged while debug_mode_o=1
+IRQ_MASK_IN_DEBUG_FAILED: interrupt acknowledged while debug_mode_o=1
+IRQ_MASK_IN_DEBUG_FAILED: interrupt acknowledged while debug_mode_o=1
+STATE_TIMEOUT: controller did not reach expected state
+STATE_TIMEOUT: controller did not reach expected state
+DEBUG_RESUME_FAILED: DRET restore strobe was not asserted in FLUSH_WB
+DEBUG_RESUME_FAILED: controller did not enter XRET_JUMP
+[430000] %Fatal: controller_debug_irq_tb.sv:169: Assertion failed in controller_debug_irq_tb: TEST_FAIL: failures=11
+%Error: /private/tmp/rivoryxa-debug-exception-review/tb/controller_debug_irq_tb.sv:169: Verilog $stop
+Aborting...

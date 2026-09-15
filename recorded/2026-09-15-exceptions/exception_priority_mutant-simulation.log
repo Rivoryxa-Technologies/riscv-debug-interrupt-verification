@@ -1,0 +1,7 @@
+EXCEPTION_IRQ_PRIORITY_FAILED: interrupt acknowledged instead of instruction-fetch exception
+EXCEPTION_TRAP_OUTPUT_FAILED: fetch fault did not save the expected exception cause
+STATE_TIMEOUT: controller did not reach expected state
+EXCEPTION_TRAP_OUTPUT_FAILED: fetch fault did not select the exception redirect in FLUSH_WB
+[360000] %Fatal: controller_debug_irq_tb.sv:169: Assertion failed in controller_debug_irq_tb: TEST_FAIL: failures=4
+%Error: /private/tmp/rivoryxa-debug-exception-review/tb/controller_debug_irq_tb.sv:169: Verilog $stop
+Aborting...
