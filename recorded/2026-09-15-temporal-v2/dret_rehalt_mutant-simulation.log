@@ -1,0 +1,4 @@
+DRET_REHALT_PRIORITY_FAILED: halt pulse was lost while DRET cleared debug mode
+[370000] %Fatal: controller_debug_irq_tb.sv:47: Assertion failed in controller_debug_irq_tb.fail: TEST_FAIL
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:47: Verilog $stop
+Aborting...

@@ -1,0 +1,4 @@
+PULSED_DEBUG_RETENTION_FAILED: halt pulse was not retained across invalid/stalled decode
+[70000] %Fatal: controller_debug_irq_tb.sv:47: Assertion failed in controller_debug_irq_tb.fail: TEST_FAIL
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:47: Verilog $stop
+Aborting...
