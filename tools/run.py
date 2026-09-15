@@ -6,11 +6,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 UPSTREAM = "https://github.com/openhwgroup/cv32e40p.git"
 REVISION = "6033d2b1be3295ec774d17ac4cf226faacfdeb08"
-PASS_MARKER = "TEST_PASS: upstream CV32E40P controller debug/interrupt scenarios verified"
+PASS_MARKER = "TEST_PASS: upstream CV32E40P controller debug/interrupt/exception scenarios verified"
 FAIL_MARKERS = ("DEBUG_IRQ_PRIORITY_FAILED", "IRQ_MASK_IN_DEBUG_FAILED", "DEBUG_ENTRY_FAILED",
                 "DEBUG_RESUME_FAILED", "PENDING_IRQ_AFTER_RESUME_FAILED", "SINGLE_STEP_FAILED",
+                "EXCEPTION_IRQ_PRIORITY_FAILED", "EXCEPTION_TRAP_OUTPUT_FAILED",
                 "STATE_TIMEOUT", "TEST_TIMEOUT", "TEST_FAIL")
-MUTANT_MARKER = "DEBUG_IRQ_PRIORITY_FAILED"
+MUTANT_MARKERS = {"debug_priority_mutant": "DEBUG_IRQ_PRIORITY_FAILED",
+                  "exception_priority_mutant": "EXCEPTION_IRQ_PRIORITY_FAILED"}
 
 def run(command, timeout, cwd=ROOT):
     start = time.monotonic()
@@ -36,7 +38,8 @@ def classify(name, compiled, simulated):
     if not completed: return False
     if name == "correct":
         return simulated["returncode"] == 0 and PASS_MARKER in simulated["output"] and not any(x in simulated["output"] for x in FAIL_MARKERS)
-    return simulated["returncode"] != 0 and MUTANT_MARKER in simulated["output"] and "TEST_FAIL" in simulated["output"] and PASS_MARKER not in simulated["output"]
+    marker = MUTANT_MARKERS.get(name)
+    return marker is not None and simulated["returncode"] != 0 and marker in simulated["output"] and "TEST_FAIL" in simulated["output"] and PASS_MARKER not in simulated["output"]
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -62,14 +65,19 @@ def main():
     steps_ok = all(x["returncode"] == 0 and not x["timed_out"] for x in steps)
     source_ok = steps_ok and rev["output"].strip() == REVISION and not clean["output"].strip()
     variants = []
-    for name in ("correct", "mutant"):
+    for name in ("correct", "debug_priority_mutant", "exception_priority_mutant"):
         obj = evidence/("obj_"+name)
         controller = source/"rtl/cv32e40p_controller.sv"
-        if name == "mutant" and source_ok:
-            mutant = evidence/"cv32e40p_controller_priority_mutant.sv"
+        if name != "correct" and source_ok:
+            mutant = evidence/("cv32e40p_controller_"+name+".sv")
             original = controller.read_text()
-            needle = "if ( (debug_req_pending || trigger_match_i) & ~debug_mode_q )"
-            changed = original.replace(needle, "if ( 1'b0 && (debug_req_pending || trigger_match_i) & ~debug_mode_q )", 1)
+            if name == "debug_priority_mutant":
+                needle = "if ( (debug_req_pending || trigger_match_i) & ~debug_mode_q )"
+                replacement = "if ( 1'b0 && (debug_req_pending || trigger_match_i) & ~debug_mode_q )"
+            else:
+                needle = "else if (is_fetch_failed_i)"
+                replacement = "else if (1'b0 && is_fetch_failed_i)"
+            changed = original.replace(needle, replacement, 1)
             if changed == original: source_ok = False
             mutant.write_text(changed); controller = mutant
         compile_cmd = ["verilator", "--binary", "--timing", "-Wno-fatal", "--top-module", "controller_debug_irq_tb", "-Mdir", str(obj),
@@ -85,7 +93,7 @@ def main():
     ok = source_ok and all(x["expected_outcome"] for x in variants)
     summary = {"schema_version":1,"run_id":evidence.name,"upstream_url":UPSTREAM,"upstream_revision":REVISION,
                "observed_revision":rev["output"].strip(),"source_revision_match":source_ok,
-               "scope":"cv32e40p_controller module-level simulation","assumptions":["single shared gated/ungated clock","always-ready simplified pipeline inputs","level-held interrupt models pending outside controller","default COREV_PULP=0, COREV_CLUSTER=0, FPU=0"],
+               "scope":"cv32e40p_controller module-level debug, qualified-interrupt, and instruction-fetch-exception simulation","assumptions":["single shared gated/ungated clock","always-ready simplified pipeline inputs","level-held qualified interrupt models pending outside controller","fetch-failed input models an instruction access fault already detected outside controller","default COREV_PULP=0, COREV_CLUSTER=0, FPU=0"],
                "python":platform.python_version(),"platform":platform.platform(),
                "verilator":run(["verilator","--version"],5)["output"].splitlines()[0],"timeout_seconds":args.timeout,
                "source_sha256":{"cv32e40p_controller.sv":sha256(source/"rtl/cv32e40p_controller.sv") if source_ok else None,
@@ -93,7 +101,7 @@ def main():
                                 "controller_debug_irq_tb.sv":sha256(ROOT/"tb/controller_debug_irq_tb.sv"),
                                 "tools/run.py":sha256(ROOT/"tools/run.py")},
                "setup_steps":[{k:v for k,v in x.items() if k != "output"} for x in steps],
-               "variants":variants,"pass_marker":PASS_MARKER,"mutant_failure_marker":MUTANT_MARKER,"overall_pass":ok}
+               "variants":variants,"pass_marker":PASS_MARKER,"mutant_failure_markers":MUTANT_MARKERS,"overall_pass":ok}
     (evidence/"summary.json").write_text(json.dumps(summary,indent=2)+"\n")
     (ROOT/"runs/LATEST").write_text(evidence.name+"\n")
     for variant in variants: print(("PASS" if variant["expected_outcome"] else "FAIL")+": "+variant["name"])

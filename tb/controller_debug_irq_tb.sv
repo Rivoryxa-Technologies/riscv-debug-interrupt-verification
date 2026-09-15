@@ -6,6 +6,7 @@ module controller_debug_irq_tb;
 
   logic clk = 0, rst_n = 0;
   logic fetch_enable_i = 1;
+  logic is_fetch_failed_i = 0;
   logic instr_valid_i = 1, id_ready_i = 1, id_valid_i = 1;
   logic ex_valid_i = 1, wb_ready_i = 1;
   logic irq_req_ctrl_i = 0;
@@ -17,6 +18,10 @@ module controller_debug_irq_tb;
   logic [2:0] debug_cause_o;
   logic debug_havereset_o, debug_running_o, debug_halted_o;
   logic csr_restore_dret_id_o;
+  logic csr_save_if_o, csr_save_cause_o, pc_set_o;
+  logic [5:0] csr_cause_o;
+  logic [3:0] pc_mux_o;
+  logic [2:0] exc_pc_mux_o;
   integer failures = 0;
   integer irq_ack_count = 0;
   integer n;
@@ -27,7 +32,7 @@ module controller_debug_irq_tb;
 
   cv32e40p_controller dut (
     .clk(clk), .clk_ungated_i(clk), .rst_n(rst_n),
-    .fetch_enable_i(fetch_enable_i), .is_fetch_failed_i(1'b0),
+    .fetch_enable_i(fetch_enable_i), .is_fetch_failed_i(is_fetch_failed_i),
     .illegal_insn_i(1'b0), .ecall_insn_i(1'b0), .mret_insn_i(1'b0), .uret_insn_i(1'b0),
     .dret_insn_i(dret_insn_i), .mret_dec_i(1'b0), .uret_dec_i(1'b0), .dret_dec_i(dret_dec_i),
     .wfi_i(1'b0), .ebrk_insn_i(1'b0), .fencei_insn_i(1'b0), .csr_status_i(csr_status_i),
@@ -44,6 +49,9 @@ module controller_debug_irq_tb;
     .debug_single_step_i(debug_single_step_i), .debug_ebreakm_i(1'b0), .debug_ebreaku_i(1'b0),
     .trigger_match_i(1'b0), .debug_havereset_o(debug_havereset_o),
     .debug_running_o(debug_running_o), .debug_halted_o(debug_halted_o),
+    .csr_save_if_o(csr_save_if_o), .csr_save_cause_o(csr_save_cause_o),
+    .csr_cause_o(csr_cause_o), .pc_set_o(pc_set_o), .pc_mux_o(pc_mux_o),
+    .exc_pc_mux_o(exc_pc_mux_o),
     .csr_restore_dret_id_o(csr_restore_dret_id_o),
     .regfile_we_id_i(1'b0), .regfile_alu_waddr_id_i('0), .regfile_we_ex_i(1'b0),
     .regfile_waddr_ex_i('0), .regfile_we_wb_i(1'b0), .regfile_alu_we_fw_i(1'b0),
@@ -75,6 +83,7 @@ module controller_debug_irq_tb;
     begin
       rst_n = 0; debug_req_i = 0; debug_single_step_i = 0;
       irq_req_ctrl_i = 0; dret_insn_i = 0; dret_dec_i = 0; csr_status_i = 0;
+      is_fetch_failed_i = 0;
       repeat (2) @(negedge clk);
       rst_n = 1;
       wait_state(DECODE, 8);
@@ -138,8 +147,23 @@ module controller_debug_irq_tb;
     if (debug_mode_o !== 1'b1 || debug_halted_o !== 1'b1)
       fail("SINGLE_STEP_FAILED", "single-step did not halt in debug mode");
 
+    // Scenario 3: instruction-fetch exception has priority over a qualified IRQ.
+    reset_and_boot();
+    @(negedge clk); is_fetch_failed_i = 1; irq_req_ctrl_i = 1;
+    #1;
+    if (irq_ack_o !== 1'b0)
+      fail("EXCEPTION_IRQ_PRIORITY_FAILED", "interrupt acknowledged instead of instruction-fetch exception");
+    if (csr_save_if_o !== 1'b1 || csr_save_cause_o !== 1'b1 ||
+        csr_cause_o !== {1'b0, EXC_CAUSE_INSTR_FAULT})
+      fail("EXCEPTION_TRAP_OUTPUT_FAILED", "fetch fault did not save the expected exception cause");
+    wait_state(FLUSH_WB, 3);
+    if (pc_set_o !== 1'b1 || pc_mux_o != PC_EXCEPTION ||
+        exc_pc_mux_o != EXC_PC_EXCEPTION)
+      fail("EXCEPTION_TRAP_OUTPUT_FAILED", "fetch fault did not select the exception redirect in FLUSH_WB");
+    is_fetch_failed_i = 0; irq_req_ctrl_i = 0;
+
     if (failures == 0) begin
-      $display("TEST_PASS: upstream CV32E40P controller debug/interrupt scenarios verified");
+      $display("TEST_PASS: upstream CV32E40P controller debug/interrupt/exception scenarios verified");
       $finish(0);
     end else begin
       $fatal(1, "TEST_FAIL: failures=%0d", failures);
