@@ -15,6 +15,10 @@ The bench also checks the independent single-step cause path. These are determin
 
 An ordinary smoke suite preserves the exact three-scenario bench from repository revision `cb2f64c` (SHA-256 `b95bd6a177e49d272cbc6b4204a9e955e8e313f4400a6281b8438caf4c896479`). It covers simultaneous halt/interrupt priority with an uncomplicated DRET and subsequent held-interrupt service, single-step entry, and a fetch fault concurrent with an interrupt. The runner requires the pinned controller and every synthetic mutant to pass this suite. This measures that each defect escapes the earlier happy paths before the temporal bench detects its boundary failure.
 
+A case-selected boundary matrix then records ten exact timing positions. The pinned controller must pass halt pulses with decode stalls of 0, 1, and 3 cycles; a valid-instruction fetch-fault control; halt pulses in `DECODE` before fetch-fault `FLUSH_WB`, during `FLUSH_WB`, and in `DECODE` after it; and halt pulses in DRET `FLUSH_WB` before `XRET_JUMP`, during `XRET_JUMP`, and in `DECODE` after it. Every passing simulation emits its observed pulse position, one-cycle pulse width, stall length, sampled-request result, and eventual service order. The checks retain external interrupt acknowledge, cause-save, exception redirect, DRET restore, and debug-mode assertions alongside internal state localization.
+
+The pre-XRET case has a deliberately different supported outcome: upstream samples the pulse while still in debug mode, then clears the sticky bit as it exits debug, so the held interrupt is serviced after DRET. The mutant's failed pre-XRET sampling check does not independently change that external outcome. The during- and after-XRET pulses persist and re-enter debug before the interrupt; losing the during-XRET pulse changes externally visible priority. The DRET synthetic mutant fails both pre-XRET sampling and during-XRET retention, while the after-XRET case passes. This is recorded as two trigger positions plus an adjacent non-trigger position.
+
 ## Synthetic seeded defects
 
 The runner creates four controller copies inside each evidence directory. Each copy changes one condition while leaving the upstream checkout untouched:
@@ -45,7 +49,7 @@ To create a reviewable recorded run at a new path:
 
 ```sh
 python3 tools/run.py --source third_party/cv32e40p \
-  --evidence-dir recorded/2026-09-15-temporal-v2
+  --evidence-dir recorded/2026-09-15-temporal-v3
 ```
 
 The default timeout is 120 seconds per external command. Every run records compile and simulation logs, exact commands, return codes, timeouts, measured durations, tool and platform versions, source hashes, assumptions, generated mutant RTL, and `summary.json`. Normal runs use unique directories under `runs/`; `runs/LATEST` names the newest normal run. The explicit evidence directory must not already exist.
@@ -66,4 +70,4 @@ The evidence covers only the named transitions, outputs, and relative ordering. 
 
 CV32E40P remains under its Solderpad Hardware License 0.51, with the upstream Apache License 2.0 option. See [THIRD_PARTY.md](THIRD_PARTY.md). This harness is Apache-2.0 licensed.
 
-Raw logs and machine-readable results from the final local reproduction are retained under [`recorded/2026-09-15-temporal-v2`](recorded/2026-09-15-temporal-v2/README.md). Earlier recorded directories remain as historical reproductions.
+Raw logs and machine-readable results from the final local reproduction are retained under [`recorded/2026-09-15-temporal-v3`](recorded/2026-09-15-temporal-v3/README.md). Earlier recorded directories remain as historical reproductions.

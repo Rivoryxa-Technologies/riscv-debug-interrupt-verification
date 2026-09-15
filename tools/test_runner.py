@@ -17,6 +17,15 @@ def mutant_failure(name, extra=""):
     if extra: output += "\n" + extra
     return {"returncode": 1, "timed_out": False, "output": output}
 
+def boundary_result(case_id, expected):
+    if expected == "pass":
+        output = "BOUNDARY_EXERCISE: %s details\nBOUNDARY_CASE_PASS: %s outcome=ok" % (case_id, case_id)
+        code = 0
+    else:
+        output = "BOUNDARY_CASE_FAILED_%s: target\nTEST_FAIL" % case_id
+        code = 1
+    return {"scenario_id":case_id, "run":{"returncode":code, "timed_out":False, "output":output}}
+
 class ClassificationTests(unittest.TestCase):
     def classify(self, name, simulated, smoke=None, compiled=COMPILE_OK, smoke_compiled=COMPILE_OK):
         return runner.classify(name, compiled, simulated, smoke_compiled, smoke or smoke_ok())
@@ -75,5 +84,28 @@ class ClassificationTests(unittest.TestCase):
         unknown = {"returncode": 1, "timed_out": False, "output": "TEST_FAIL"}
         self.assertFalse(self.classify(name, success))
         self.assertFalse(self.classify("unknown", unknown))
+
+    def test_boundary_matrix_requires_complete_unique_cases(self):
+        expected = runner.BOUNDARY_EXPECTATIONS["correct"]
+        results = [boundary_result(case_id, outcome) for case_id, outcome in expected.items()]
+        self.assertTrue(runner.classify_boundary("correct", COMPILE_OK, results))
+        self.assertFalse(runner.classify_boundary("correct", COMPILE_OK, results[:-1]))
+        self.assertFalse(runner.classify_boundary("correct", COMPILE_OK, results[:-1] + [results[0]]))
+
+    def test_boundary_target_rejects_pass_or_unrelated_failure(self):
+        name = "dret_rehalt_mutant"
+        expected = runner.BOUNDARY_EXPECTATIONS[name]
+        results = [boundary_result(case_id, outcome) for case_id, outcome in expected.items()]
+        self.assertTrue(runner.classify_boundary(name, COMPILE_OK, results))
+        target = next(x for x in results if x["scenario_id"] == "XRET_DURING")
+        target["run"] = {"returncode":1, "timed_out":False,
+                         "output":"BOUNDARY_CASE_FAILED_FLUSH_DURING: wrong\nTEST_FAIL"}
+        self.assertFalse(runner.classify_boundary(name, COMPILE_OK, results))
+
+    def test_boundary_metadata_is_complete(self):
+        required = {"pulse_position", "stall_length", "sampled_request", "eventual_service_order"}
+        self.assertEqual(len(runner.BOUNDARY_CASES), len(set(runner.BOUNDARY_CASES)))
+        for metadata in runner.BOUNDARY_CASES.values():
+            self.assertEqual(required, set(metadata))
 
 if __name__ == "__main__": unittest.main()

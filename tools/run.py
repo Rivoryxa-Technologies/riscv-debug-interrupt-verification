@@ -42,6 +42,25 @@ SMOKE_FAIL_MARKERS = ("DEBUG_IRQ_PRIORITY_FAILED", "IRQ_MASK_IN_DEBUG_FAILED", "
                       "DEBUG_RESUME_FAILED", "PENDING_IRQ_AFTER_RESUME_FAILED", "SINGLE_STEP_FAILED",
                       "EXCEPTION_IRQ_PRIORITY_FAILED", "EXCEPTION_TRAP_OUTPUT_FAILED",
                       "STATE_TIMEOUT", "TEST_TIMEOUT", "TEST_FAIL")
+BOUNDARY_CASES = {
+    "STALL_0": {"pulse_position":"DECODE_VALID", "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "STALL_1": {"pulse_position":"DECODE_INVALID", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "STALL_3": {"pulse_position":"DECODE_INVALID", "stall_length":3, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "FETCH_VALID": {"pulse_position":"none", "stall_length":0, "sampled_request":False, "eventual_service_order":"exception_redirect"},
+    "FLUSH_BEFORE": {"pulse_position":"DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "FLUSH_DURING": {"pulse_position":"FETCH_FAULT_FLUSH_WB", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "FLUSH_AFTER": {"pulse_position":"DECODE_AFTER_FETCH_FAULT_FLUSH_WB", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "XRET_BEFORE": {"pulse_position":"DRET_FLUSH_WB_BEFORE_XRET_JUMP", "stall_length":0, "sampled_request":True, "eventual_service_order":"irq_after_dret"},
+    "XRET_DURING": {"pulse_position":"DRET_XRET_JUMP", "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "XRET_AFTER": {"pulse_position":"DECODE_AFTER_DRET_XRET_JUMP", "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+}
+BOUNDARY_EXPECTATIONS = {
+    "correct": {case_id:"pass" for case_id in BOUNDARY_CASES},
+    "stalled_debug_pulse_mutant": {"STALL_0":"pass", "STALL_3":"target_fail"},
+    "fetch_valid_coupling_mutant": {"FETCH_VALID":"pass", "FLUSH_BEFORE":"target_fail"},
+    "exception_flush_debug_mutant": {"FLUSH_BEFORE":"pass", "FLUSH_DURING":"target_fail", "FLUSH_AFTER":"pass"},
+    "dret_rehalt_mutant": {"XRET_BEFORE":"target_fail", "XRET_DURING":"target_fail", "XRET_AFTER":"pass"},
+}
 
 def run(command, timeout, cwd=ROOT):
     start = time.monotonic()
@@ -81,6 +100,29 @@ def classify(name, compiled, simulated, smoke_compiled, smoke_simulated):
     return (marker is not None and simulated["returncode"] != 0 and
             output.count(marker) == 1 and output.count("TEST_FAIL") == 1 and
             PASS_MARKER not in output and not any(x in output for x in unrelated))
+
+def classify_boundary(name, compiled, results):
+    expected = BOUNDARY_EXPECTATIONS.get(name)
+    if expected is None or compiled["returncode"] != 0 or compiled["timed_out"]: return False
+    if len(results) != len(expected) or {x["scenario_id"] for x in results} != set(expected): return False
+    for result in results:
+        case_id = result["scenario_id"]; output = result["run"]["output"]
+        pass_marker = "BOUNDARY_CASE_PASS: " + case_id
+        exercise_marker = "BOUNDARY_EXERCISE: " + case_id
+        fail_marker = "BOUNDARY_CASE_FAILED_" + case_id
+        if result["run"]["timed_out"]: return False
+        if output.count(exercise_marker) != (1 if expected[case_id] == "pass" else 0): return False
+        if expected[case_id] == "pass":
+            if result["run"]["returncode"] != 0 or output.count(pass_marker) != 1:
+                return False
+            if "BOUNDARY_CASE_FAILED_" in output or "TEST_FAIL" in output: return False
+        elif expected[case_id] == "target_fail":
+            if result["run"]["returncode"] == 0 or output.count(fail_marker) != 1:
+                return False
+            if output.count("TEST_FAIL") != 1 or "BOUNDARY_CASE_PASS:" in output: return False
+            if output.count("BOUNDARY_CASE_FAILED_") != 1: return False
+        else: return False
+    return True
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -137,23 +179,43 @@ def main():
         smoke_compiled = run(smoke_compile_cmd, args.timeout) if variant_source_ok else {"command":smoke_compile_cmd,"returncode":125,"timed_out":False,"seconds":0,"output":"SOURCE_REVISION_CLEANLINESS_OR_MUTATION_MATCH_FAILED\n"}
         smoke_binary = smoke_obj/"Vcontroller_debug_irq_tb"
         smoke_simulated = run([str(smoke_binary)], args.timeout) if smoke_compiled["returncode"] == 0 else {"command":[str(smoke_binary)],"returncode":125,"timed_out":False,"seconds":0,"output":"COMPILE_FAILED\n"}
+        boundary_obj = evidence/("obj_boundary_"+name)
+        boundary_compile_cmd = ["verilator", "--binary", "--timing", "-Wno-fatal", "--top-module", "controller_debug_irq_tb", "-Mdir", str(boundary_obj),
+                                str(source/"rtl/include/cv32e40p_pkg.sv"), str(controller), str(ROOT/"tb/controller_boundary_matrix_tb.sv")]
+        boundary_compiled = run(boundary_compile_cmd, args.timeout) if variant_source_ok else {"command":boundary_compile_cmd,"returncode":125,"timed_out":False,"seconds":0,"output":"SOURCE_REVISION_CLEANLINESS_OR_MUTATION_MATCH_FAILED\n"}
+        boundary_binary = boundary_obj/"Vcontroller_debug_irq_tb"
+        boundary_results = []
+        for case_id, expected_case_outcome in BOUNDARY_EXPECTATIONS[name].items():
+            case_run = run([str(boundary_binary), "+CASE="+case_id], args.timeout) if boundary_compiled["returncode"] == 0 else {"command":[str(boundary_binary), "+CASE="+case_id],"returncode":125,"timed_out":False,"seconds":0,"output":"COMPILE_FAILED\n"}
+            (evidence/(name+"-boundary-"+case_id+".log")).write_text(case_run["output"])
+            boundary_results.append({"scenario_id":case_id, **BOUNDARY_CASES[case_id],
+                                     "expected_outcome":expected_case_outcome, "run":case_run})
         (evidence/(name+"-compile.log")).write_text(compiled["output"])
         (evidence/(name+"-simulation.log")).write_text(simulated["output"])
         (evidence/(name+"-smoke-compile.log")).write_text(smoke_compiled["output"])
         (evidence/(name+"-smoke-simulation.log")).write_text(smoke_simulated["output"])
-        expected = classify(name, compiled, simulated, smoke_compiled, smoke_simulated)
+        (evidence/(name+"-boundary-compile.log")).write_text(boundary_compiled["output"])
+        expected = (classify(name, compiled, simulated, smoke_compiled, smoke_simulated) and
+                    classify_boundary(name, boundary_compiled, boundary_results))
         artifact_paths = {
             "temporal_compile_log": evidence/(name+"-compile.log"),
             "temporal_simulation_log": evidence/(name+"-simulation.log"),
             "ordinary_smoke_compile_log": evidence/(name+"-smoke-compile.log"),
             "ordinary_smoke_simulation_log": evidence/(name+"-smoke-simulation.log"),
+            "boundary_compile_log": evidence/(name+"-boundary-compile.log"),
         }
+        for result in boundary_results:
+            artifact_paths["boundary_"+result["scenario_id"]] = evidence/(name+"-boundary-"+result["scenario_id"]+".log")
         if name != "correct": artifact_paths["generated_mutant"] = controller
         variants.append({"name":name,"synthetic_mutation":mutation_description,
                          "compile":{k:v for k,v in compiled.items() if k != "output"},
                          "simulation":{k:v for k,v in simulated.items() if k != "output"},
                          "ordinary_smoke_compile":{k:v for k,v in smoke_compiled.items() if k != "output"},
                          "ordinary_smoke_simulation":{k:v for k,v in smoke_simulated.items() if k != "output"},
+                         "boundary_compile":{k:v for k,v in boundary_compiled.items() if k != "output"},
+                         "boundary_cases":[{**{k:v for k,v in x.items() if k != "run"},
+                                            "run":{k:v for k,v in x["run"].items() if k != "output"}}
+                                           for x in boundary_results],
                          "artifact_sha256":{k:sha256(v) for k,v in artifact_paths.items()},
                          "expected_outcome":expected})
     (evidence/"setup.log").write_text("\n".join(x["output"] for x in steps))
@@ -176,6 +238,7 @@ def main():
                                 "cv32e40p_pkg.sv":sha256(source/"rtl/include/cv32e40p_pkg.sv") if source_ok else None,
                                 "controller_debug_irq_tb.sv":sha256(ROOT/"tb/controller_debug_irq_tb.sv"),
                                 "controller_debug_irq_smoke_tb.sv":sha256(ROOT/"tb/controller_debug_irq_smoke_tb.sv"),
+                                "controller_boundary_matrix_tb.sv":sha256(ROOT/"tb/controller_boundary_matrix_tb.sv"),
                                 "tools/run.py":sha256(ROOT/"tools/run.py")},
                "setup_steps":[{k:v for k,v in x.items() if k != "output"} for x in steps],
                "variants":variants,"pass_marker":PASS_MARKER,"ordinary_smoke_pass_marker":SMOKE_PASS_MARKER,
