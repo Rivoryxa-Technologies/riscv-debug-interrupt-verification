@@ -41,7 +41,11 @@ module controller_debug_irq_tb;
   );
 
   task fail(input string marker, input string detail);
-    begin $display("%s: %s", marker, detail); failures = failures + 1; end
+    begin
+      failures = failures + 1;
+      $display("%s: %s", marker, detail);
+      $fatal(1, "TEST_FAIL");
+    end
   endtask
 
   task wait_state(input ctrl_state_e wanted, input integer limit, input string marker);

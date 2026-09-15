@@ -13,6 +13,8 @@ The SystemVerilog bench drives the controller's real FSM and sticky debug-reques
 
 The bench also checks the independent single-step cause path. These are deterministic boundary sequences, not random stimulus or whole-core instruction execution.
 
+An ordinary smoke suite preserves the exact three-scenario bench from repository revision `cb2f64c` (SHA-256 `b95bd6a177e49d272cbc6b4204a9e955e8e313f4400a6281b8438caf4c896479`). It covers simultaneous halt/interrupt priority with an uncomplicated DRET and subsequent held-interrupt service, single-step entry, and a fetch fault concurrent with an interrupt. The runner requires the pinned controller and every synthetic mutant to pass this suite. This measures that each defect escapes the earlier happy paths before the temporal bench detects its boundary failure.
+
 ## Synthetic seeded defects
 
 The runner creates four controller copies inside each evidence directory. Each copy changes one condition while leaving the upstream checkout untouched:
@@ -22,7 +24,7 @@ The runner creates four controller copies inside each evidence directory. Each c
 - reject a halt pulse only while the controller is in `FLUSH_WB`, losing the exception-flush request;
 - reject a halt pulse while `debug_mode_q` is set, losing the request sampled at the DRET boundary.
 
-These defects preserve ordinary ready/valid halt entry, normal valid-instruction fetch-fault entry, and uncomplicated DRET behavior. They are explicitly synthetic checker controls and are not claims of upstream CV32E40P bugs. The runner accepts a negative control only when compilation succeeds, simulation fails, its scenario-specific marker appears with `TEST_FAIL`, and no pass marker appears. Compile failures, timeouts, unknown variants, arbitrary crashes, and wrong-marker failures are rejected.
+These defects preserve ordinary ready/valid halt entry, normal valid-instruction fetch-fault entry, and uncomplicated DRET behavior, as verified by the smoke matrix rather than assumed from inspection. They are explicitly synthetic checker controls and are not claims of upstream CV32E40P bugs. The runner accepts a negative control only when both benches compile, the smoke simulation passes, the temporal simulation fails, and exactly one scenario-specific marker plus exactly one `TEST_FAIL` appear. Compile failures, smoke failures, timeouts, unknown variants, arbitrary crashes, unrelated or duplicated diagnostics, duplicated pass markers, and wrong-marker failures are rejected.
 
 ## Run
 
@@ -43,7 +45,7 @@ To create a reviewable recorded run at a new path:
 
 ```sh
 python3 tools/run.py --source third_party/cv32e40p \
-  --evidence-dir recorded/2026-09-15-temporal
+  --evidence-dir recorded/2026-09-15-temporal-v2
 ```
 
 The default timeout is 120 seconds per external command. Every run records compile and simulation logs, exact commands, return codes, timeouts, measured durations, tool and platform versions, source hashes, assumptions, generated mutant RTL, and `summary.json`. Normal runs use unique directories under `runs/`; `runs/LATEST` names the newest normal run. The explicit evidence directory must not already exist.
@@ -64,4 +66,4 @@ The evidence covers only the named transitions, outputs, and relative ordering. 
 
 CV32E40P remains under its Solderpad Hardware License 0.51, with the upstream Apache License 2.0 option. See [THIRD_PARTY.md](THIRD_PARTY.md). This harness is Apache-2.0 licensed.
 
-Raw logs and machine-readable results from the final local reproduction are retained under [`recorded/2026-09-15-temporal`](recorded/2026-09-15-temporal/README.md). Earlier recorded directories remain as historical, shallower reproductions.
+Raw logs and machine-readable results from the final local reproduction are retained under [`recorded/2026-09-15-temporal-v2`](recorded/2026-09-15-temporal-v2/README.md). Earlier recorded directories remain as historical reproductions.

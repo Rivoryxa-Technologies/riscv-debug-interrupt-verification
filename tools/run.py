@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 UPSTREAM = "https://github.com/openhwgroup/cv32e40p.git"
 REVISION = "6033d2b1be3295ec774d17ac4cf226faacfdeb08"
 PASS_MARKER = "TEST_PASS: upstream CV32E40P controller temporal debug/interrupt/exception scenarios verified"
+SMOKE_PASS_MARKER = "TEST_PASS: upstream CV32E40P controller debug/interrupt/exception scenarios verified"
 FAIL_MARKERS = ("PULSED_DEBUG_RETENTION_FAILED", "STALLED_FETCH_FAULT_PRIORITY_FAILED",
                 "EXCEPTION_FLUSH_DEBUG_FAILED", "DRET_STALL_FAILED", "DRET_REHALT_PRIORITY_FAILED", "SINGLE_STEP_FAILED",
                 "BOOT_STATE_TIMEOUT",
@@ -37,6 +38,10 @@ MUTATIONS = {
         "incorrectly rejects a new halt pulse sampled as DRET clears debug mode",
     ),
 }
+SMOKE_FAIL_MARKERS = ("DEBUG_IRQ_PRIORITY_FAILED", "IRQ_MASK_IN_DEBUG_FAILED", "DEBUG_ENTRY_FAILED",
+                      "DEBUG_RESUME_FAILED", "PENDING_IRQ_AFTER_RESUME_FAILED", "SINGLE_STEP_FAILED",
+                      "EXCEPTION_IRQ_PRIORITY_FAILED", "EXCEPTION_TRAP_OUTPUT_FAILED",
+                      "STATE_TIMEOUT", "TEST_TIMEOUT", "TEST_FAIL")
 
 def run(command, timeout, cwd=ROOT):
     start = time.monotonic()
@@ -57,13 +62,25 @@ def run(command, timeout, cwd=ROOT):
 
 def sha256(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def classify(name, compiled, simulated):
-    completed = compiled["returncode"] == 0 and not compiled["timed_out"] and not simulated["timed_out"]
+def classify(name, compiled, simulated, smoke_compiled, smoke_simulated):
+    completed = (compiled["returncode"] == 0 and not compiled["timed_out"] and
+                 not simulated["timed_out"] and smoke_compiled["returncode"] == 0 and
+                 not smoke_compiled["timed_out"] and not smoke_simulated["timed_out"])
     if not completed: return False
+    smoke_output = smoke_simulated["output"]
+    smoke_ok = (smoke_simulated["returncode"] == 0 and
+                smoke_output.count(SMOKE_PASS_MARKER) == 1 and
+                not any(x in smoke_output for x in SMOKE_FAIL_MARKERS))
+    if not smoke_ok: return False
+    output = simulated["output"]
     if name == "correct":
-        return simulated["returncode"] == 0 and PASS_MARKER in simulated["output"] and not any(x in simulated["output"] for x in FAIL_MARKERS)
+        return (simulated["returncode"] == 0 and output.count(PASS_MARKER) == 1 and
+                not any(x in output for x in FAIL_MARKERS))
     marker = MUTANT_MARKERS.get(name)
-    return marker is not None and simulated["returncode"] != 0 and marker in simulated["output"] and "TEST_FAIL" in simulated["output"] and PASS_MARKER not in simulated["output"]
+    unrelated = tuple(x for x in FAIL_MARKERS if x not in (marker, "TEST_FAIL"))
+    return (marker is not None and simulated["returncode"] != 0 and
+            output.count(marker) == 1 and output.count("TEST_FAIL") == 1 and
+            PASS_MARKER not in output and not any(x in output for x in unrelated))
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -114,12 +131,30 @@ def main():
         compiled = run(compile_cmd, args.timeout) if variant_source_ok else {"command":compile_cmd,"returncode":125,"timed_out":False,"seconds":0,"output":"SOURCE_REVISION_CLEANLINESS_OR_MUTATION_MATCH_FAILED\n"}
         binary = obj/"Vcontroller_debug_irq_tb"
         simulated = run([str(binary)], args.timeout) if compiled["returncode"] == 0 else {"command":[str(binary)],"returncode":125,"timed_out":False,"seconds":0,"output":"COMPILE_FAILED\n"}
+        smoke_obj = evidence/("obj_smoke_"+name)
+        smoke_compile_cmd = ["verilator", "--binary", "--timing", "-Wno-fatal", "--top-module", "controller_debug_irq_tb", "-Mdir", str(smoke_obj),
+                             str(source/"rtl/include/cv32e40p_pkg.sv"), str(controller), str(ROOT/"tb/controller_debug_irq_smoke_tb.sv")]
+        smoke_compiled = run(smoke_compile_cmd, args.timeout) if variant_source_ok else {"command":smoke_compile_cmd,"returncode":125,"timed_out":False,"seconds":0,"output":"SOURCE_REVISION_CLEANLINESS_OR_MUTATION_MATCH_FAILED\n"}
+        smoke_binary = smoke_obj/"Vcontroller_debug_irq_tb"
+        smoke_simulated = run([str(smoke_binary)], args.timeout) if smoke_compiled["returncode"] == 0 else {"command":[str(smoke_binary)],"returncode":125,"timed_out":False,"seconds":0,"output":"COMPILE_FAILED\n"}
         (evidence/(name+"-compile.log")).write_text(compiled["output"])
         (evidence/(name+"-simulation.log")).write_text(simulated["output"])
-        expected = classify(name, compiled, simulated)
+        (evidence/(name+"-smoke-compile.log")).write_text(smoke_compiled["output"])
+        (evidence/(name+"-smoke-simulation.log")).write_text(smoke_simulated["output"])
+        expected = classify(name, compiled, simulated, smoke_compiled, smoke_simulated)
+        artifact_paths = {
+            "temporal_compile_log": evidence/(name+"-compile.log"),
+            "temporal_simulation_log": evidence/(name+"-simulation.log"),
+            "ordinary_smoke_compile_log": evidence/(name+"-smoke-compile.log"),
+            "ordinary_smoke_simulation_log": evidence/(name+"-smoke-simulation.log"),
+        }
+        if name != "correct": artifact_paths["generated_mutant"] = controller
         variants.append({"name":name,"synthetic_mutation":mutation_description,
                          "compile":{k:v for k,v in compiled.items() if k != "output"},
                          "simulation":{k:v for k,v in simulated.items() if k != "output"},
+                         "ordinary_smoke_compile":{k:v for k,v in smoke_compiled.items() if k != "output"},
+                         "ordinary_smoke_simulation":{k:v for k,v in smoke_simulated.items() if k != "output"},
+                         "artifact_sha256":{k:sha256(v) for k,v in artifact_paths.items()},
                          "expected_outcome":expected})
     (evidence/"setup.log").write_text("\n".join(x["output"] for x in steps))
     ok = source_ok and all(x["expected_outcome"] for x in variants)
@@ -132,6 +167,7 @@ def main():
                    "halt request sampled during fetch-fault FLUSH_WB retained without disturbing redirect, then prioritized over held interrupt",
                    "DRET held by id_ready_i stall, followed by halt pulse at XRET_JUMP and re-entry before a held interrupt",
                    "single-step debug-cause sanity path",
+                   "prior three-scenario smoke bench, including ordinary DRET followed by held-interrupt service, applied to correct RTL and every mutant",
                ],
                "assumptions":["single shared gated/ungated clock","pipeline stage validity is directly driven at the controller boundary","level-held qualified interrupt models pending outside controller","fetch-failed input remains asserted through FLUSH_WB and models detection outside controller","default COREV_PULP=0, COREV_CLUSTER=0, FPU=0"],
                "python":platform.python_version(),"platform":platform.platform(),
@@ -139,9 +175,11 @@ def main():
                "source_sha256":{"cv32e40p_controller.sv":sha256(source/"rtl/cv32e40p_controller.sv") if source_ok else None,
                                 "cv32e40p_pkg.sv":sha256(source/"rtl/include/cv32e40p_pkg.sv") if source_ok else None,
                                 "controller_debug_irq_tb.sv":sha256(ROOT/"tb/controller_debug_irq_tb.sv"),
+                                "controller_debug_irq_smoke_tb.sv":sha256(ROOT/"tb/controller_debug_irq_smoke_tb.sv"),
                                 "tools/run.py":sha256(ROOT/"tools/run.py")},
                "setup_steps":[{k:v for k,v in x.items() if k != "output"} for x in steps],
-               "variants":variants,"pass_marker":PASS_MARKER,"mutant_failure_markers":MUTANT_MARKERS,"overall_pass":ok}
+               "variants":variants,"pass_marker":PASS_MARKER,"ordinary_smoke_pass_marker":SMOKE_PASS_MARKER,
+               "mutant_failure_markers":MUTANT_MARKERS,"overall_pass":ok}
     (evidence/"summary.json").write_text(json.dumps(summary,indent=2)+"\n")
     if not args.evidence_dir:
         (ROOT/"runs/LATEST").write_text(evidence.name+"\n")
