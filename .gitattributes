@@ -1,0 +1,2 @@
+recorded/**/*.log -whitespace
+recorded/**/*.sv -whitespace

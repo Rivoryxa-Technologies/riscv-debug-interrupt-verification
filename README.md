@@ -39,3 +39,7 @@ The evidence covers only the transitions and outputs named above. It is not a wh
 ## Upstream license
 
 CV32E40P is fetched from the public upstream repository and remains under its Solderpad Hardware License 0.51, with the upstream option to use Apache License 2.0. See [THIRD_PARTY.md](THIRD_PARTY.md). The original material in this evidence harness is Apache-2.0 licensed.
+
+## Recorded reproduction
+
+[Independent run and raw evidence](recorded/2026-09-15/README.md) include the correct-controller result, detected negative control, hashes, and measured durations.

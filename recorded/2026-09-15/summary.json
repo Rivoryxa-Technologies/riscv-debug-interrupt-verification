@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "run_id": "20260915T054954.819244Z-3e85fcc4",
+  "upstream_url": "https://github.com/openhwgroup/cv32e40p.git",
+  "upstream_revision": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+  "observed_revision": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+  "source_revision_match": true,
+  "scope": "cv32e40p_controller module-level simulation",
+  "assumptions": [
+    "single shared gated/ungated clock",
+    "always-ready simplified pipeline inputs",
+    "level-held interrupt models pending outside controller",
+    "default COREV_PULP=0, COREV_CLUSTER=0, FPU=0"
+  ],
+  "python": "3.9.6",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701",
+  "timeout_seconds": 120.0,
+  "source_sha256": {
+    "cv32e40p_controller.sv": "858b172963e17529de0b40a5be6ddfdadfc60bdca967819e4fc558b0ed6d7b87",
+    "cv32e40p_pkg.sv": "3fee39d262ef44bff6ee00b591fe08830e5e35cdd1b9e5eb9eb06da6f6525805",
+    "controller_debug_irq_tb.sv": "38c443573f5713fb857a4995f0e702bd3668e6cf486efb01041fb1a62fe683b7",
+    "tools/run.py": "c21f2d429a31e514382198cedd55fa962a556ae716455954136c7548edc30fc5"
+  },
+  "setup_steps": [
+    {
+      "command": [
+        "git",
+        "clone",
+        "--filter=blob:none",
+        "https://github.com/openhwgroup/cv32e40p.git",
+        "/private/tmp/rivoryxa-debug-review/third_party/cv32e40p"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.333584
+    },
+    {
+      "command": [
+        "git",
+        "checkout",
+        "--detach",
+        "6033d2b1be3295ec774d17ac4cf226faacfdeb08"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.087537
+    },
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.035986
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.121839
+    }
+  ],
+  "variants": [
+    {
+      "name": "correct",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/private/tmp/rivoryxa-debug-review/runs/20260915T054954.819244Z-3e85fcc4/obj_correct",
+          "/private/tmp/rivoryxa-debug-review/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/private/tmp/rivoryxa-debug-review/third_party/cv32e40p/rtl/cv32e40p_controller.sv",
+          "/private/tmp/rivoryxa-debug-review/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 9.29857
+      },
+      "simulation": {
+        "command": [
+          "/private/tmp/rivoryxa-debug-review/runs/20260915T054954.819244Z-3e85fcc4/obj_correct/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.530914
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "mutant",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/private/tmp/rivoryxa-debug-review/runs/20260915T054954.819244Z-3e85fcc4/obj_mutant",
+          "/private/tmp/rivoryxa-debug-review/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/private/tmp/rivoryxa-debug-review/runs/20260915T054954.819244Z-3e85fcc4/cv32e40p_controller_priority_mutant.sv",
+          "/private/tmp/rivoryxa-debug-review/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 6.928062
+      },
+      "simulation": {
+        "command": [
+          "/private/tmp/rivoryxa-debug-review/runs/20260915T054954.819244Z-3e85fcc4/obj_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.533251
+      },
+      "expected_outcome": true
+    }
+  ],
+  "pass_marker": "TEST_PASS: upstream CV32E40P controller debug/interrupt scenarios verified",
+  "mutant_failure_marker": "DEBUG_IRQ_PRIORITY_FAILED",
+  "overall_pass": true
+}

@@ -1,0 +1,5 @@
+TEST_PASS: upstream CV32E40P controller debug/interrupt scenarios verified
+- /private/tmp/rivoryxa-debug-review/tb/controller_debug_irq_tb.sv:143: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 270ns; walltime 0.000 s; speed 7.714 ms/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 2 MB
