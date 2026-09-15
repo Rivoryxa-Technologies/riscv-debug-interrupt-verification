@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Fetch pinned CV32E40P and run controller-level debug/interrupt evidence."""
-import argparse, datetime as dt, hashlib, json, math, os, platform, shutil, signal, subprocess, sys, time, uuid
+import argparse, datetime as dt, hashlib, json, math, os, platform, re, shutil, signal, subprocess, sys, time, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,16 +43,16 @@ SMOKE_FAIL_MARKERS = ("DEBUG_IRQ_PRIORITY_FAILED", "IRQ_MASK_IN_DEBUG_FAILED", "
                       "EXCEPTION_IRQ_PRIORITY_FAILED", "EXCEPTION_TRAP_OUTPUT_FAILED",
                       "STATE_TIMEOUT", "TEST_TIMEOUT", "TEST_FAIL")
 BOUNDARY_CASES = {
-    "STALL_0": {"pulse_position":"DECODE_VALID", "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "STALL_1": {"pulse_position":"DECODE_INVALID", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "STALL_3": {"pulse_position":"DECODE_INVALID", "stall_length":3, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "FETCH_VALID": {"pulse_position":"none", "stall_length":0, "sampled_request":False, "eventual_service_order":"exception_redirect"},
-    "FLUSH_BEFORE": {"pulse_position":"DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "FLUSH_DURING": {"pulse_position":"FETCH_FAULT_FLUSH_WB", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "FLUSH_AFTER": {"pulse_position":"DECODE_AFTER_FETCH_FAULT_FLUSH_WB", "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "XRET_BEFORE": {"pulse_position":"DRET_FLUSH_WB_BEFORE_XRET_JUMP", "stall_length":0, "sampled_request":True, "eventual_service_order":"irq_after_dret"},
-    "XRET_DURING": {"pulse_position":"DRET_XRET_JUMP", "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
-    "XRET_AFTER": {"pulse_position":"DECODE_AFTER_DRET_XRET_JUMP", "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "STALL_0": {"pulse_position":"DECODE_VALID", "pulse_width_cycles":1, "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "STALL_1": {"pulse_position":"DECODE_INVALID", "pulse_width_cycles":1, "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "STALL_3": {"pulse_position":"DECODE_INVALID", "pulse_width_cycles":1, "stall_length":3, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "FETCH_VALID": {"pulse_position":"none", "pulse_width_cycles":1, "stall_length":0, "sampled_request":False, "eventual_service_order":"exception_redirect"},
+    "FLUSH_BEFORE": {"pulse_position":"DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB", "pulse_width_cycles":1, "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "FLUSH_DURING": {"pulse_position":"FETCH_FAULT_FLUSH_WB", "pulse_width_cycles":1, "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "FLUSH_AFTER": {"pulse_position":"DECODE_AFTER_FETCH_FAULT_FLUSH_WB", "pulse_width_cycles":1, "stall_length":1, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "XRET_BEFORE": {"pulse_position":"DRET_FLUSH_WB_BEFORE_XRET_JUMP", "pulse_width_cycles":1, "stall_length":0, "sampled_request":True, "eventual_service_order":"irq_after_dret"},
+    "XRET_DURING": {"pulse_position":"DRET_XRET_JUMP", "pulse_width_cycles":1, "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
+    "XRET_AFTER": {"pulse_position":"DECODE_AFTER_DRET_XRET_JUMP", "pulse_width_cycles":1, "stall_length":0, "sampled_request":True, "eventual_service_order":"halt_before_irq"},
 }
 BOUNDARY_EXPECTATIONS = {
     "correct": {case_id:"pass" for case_id in BOUNDARY_CASES},
@@ -81,6 +81,16 @@ def run(command, timeout, cwd=ROOT):
 
 def sha256(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def parse_boundary_exercise(output, case_id):
+    pattern = re.compile(r"^BOUNDARY_EXERCISE: (\S+) pulse_position=(\S+) pulse_width_cycles=(\d+) "
+                         r"stall_length=(\d+) sampled_request=([01]) service_order=(\S+)$", re.MULTILINE)
+    matches = pattern.findall(output)
+    if len(matches) != 1 or matches[0][0] != case_id: return None
+    _, position, width, stall, sampled, order = matches[0]
+    return {"pulse_position":position, "pulse_width_cycles":int(width),
+            "stall_length":int(stall), "sampled_request":sampled == "1",
+            "eventual_service_order":order}
+
 def classify(name, compiled, simulated, smoke_compiled, smoke_simulated):
     completed = (compiled["returncode"] == 0 and not compiled["timed_out"] and
                  not simulated["timed_out"] and smoke_compiled["returncode"] == 0 and
@@ -108,10 +118,10 @@ def classify_boundary(name, compiled, results):
     for result in results:
         case_id = result["scenario_id"]; output = result["run"]["output"]
         pass_marker = "BOUNDARY_CASE_PASS: " + case_id
-        exercise_marker = "BOUNDARY_EXERCISE: " + case_id
         fail_marker = "BOUNDARY_CASE_FAILED_" + case_id
         if result["run"]["timed_out"]: return False
-        if output.count(exercise_marker) != (1 if expected[case_id] == "pass" else 0): return False
+        observed = parse_boundary_exercise(output, case_id)
+        if observed != (BOUNDARY_CASES[case_id] if expected[case_id] == "pass" else None): return False
         if expected[case_id] == "pass":
             if result["run"]["returncode"] != 0 or output.count(pass_marker) != 1:
                 return False
@@ -188,7 +198,9 @@ def main():
         for case_id, expected_case_outcome in BOUNDARY_EXPECTATIONS[name].items():
             case_run = run([str(boundary_binary), "+CASE="+case_id], args.timeout) if boundary_compiled["returncode"] == 0 else {"command":[str(boundary_binary), "+CASE="+case_id],"returncode":125,"timed_out":False,"seconds":0,"output":"COMPILE_FAILED\n"}
             (evidence/(name+"-boundary-"+case_id+".log")).write_text(case_run["output"])
-            boundary_results.append({"scenario_id":case_id, **BOUNDARY_CASES[case_id],
+            boundary_results.append({"scenario_id":case_id,
+                                     "expected_metadata":BOUNDARY_CASES[case_id],
+                                     "observed_exercise":parse_boundary_exercise(case_run["output"], case_id),
                                      "expected_outcome":expected_case_outcome, "run":case_run})
         (evidence/(name+"-compile.log")).write_text(compiled["output"])
         (evidence/(name+"-simulation.log")).write_text(simulated["output"])

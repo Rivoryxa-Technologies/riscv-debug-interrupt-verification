@@ -19,7 +19,12 @@ def mutant_failure(name, extra=""):
 
 def boundary_result(case_id, expected):
     if expected == "pass":
-        output = "BOUNDARY_EXERCISE: %s details\nBOUNDARY_CASE_PASS: %s outcome=ok" % (case_id, case_id)
+        metadata = runner.BOUNDARY_CASES[case_id]
+        output = ("BOUNDARY_EXERCISE: %s pulse_position=%s pulse_width_cycles=%d stall_length=%d "
+                  "sampled_request=%d service_order=%s\nBOUNDARY_CASE_PASS: %s outcome=ok") % (
+                      case_id, metadata["pulse_position"], metadata["pulse_width_cycles"],
+                      metadata["stall_length"], metadata["sampled_request"],
+                      metadata["eventual_service_order"], case_id)
         code = 0
     else:
         output = "BOUNDARY_CASE_FAILED_%s: target\nTEST_FAIL" % case_id
@@ -103,9 +108,22 @@ class ClassificationTests(unittest.TestCase):
         self.assertFalse(runner.classify_boundary(name, COMPILE_OK, results))
 
     def test_boundary_metadata_is_complete(self):
-        required = {"pulse_position", "stall_length", "sampled_request", "eventual_service_order"}
+        required = {"pulse_position", "pulse_width_cycles", "stall_length", "sampled_request", "eventual_service_order"}
         self.assertEqual(len(runner.BOUNDARY_CASES), len(set(runner.BOUNDARY_CASES)))
         for metadata in runner.BOUNDARY_CASES.values():
             self.assertEqual(required, set(metadata))
+
+    def test_boundary_rejects_wrong_or_duplicate_exercise_values(self):
+        expected = runner.BOUNDARY_EXPECTATIONS["correct"]
+        for bad_text in ("stall_length=9", "pulse_width_cycles=2", "sampled_request=0",
+                         "pulse_position=WRONG", "service_order=WRONG"):
+            results = [boundary_result(case_id, outcome) for case_id, outcome in expected.items()]
+            original = results[0]["run"]["output"]
+            field = bad_text.split("=")[0]
+            results[0]["run"]["output"] = __import__("re").sub(field+r"=\S+", bad_text, original)
+            self.assertFalse(runner.classify_boundary("correct", COMPILE_OK, results))
+        results = [boundary_result(case_id, outcome) for case_id, outcome in expected.items()]
+        results[0]["run"]["output"] += "\n" + results[0]["run"]["output"].splitlines()[0]
+        self.assertFalse(runner.classify_boundary("correct", COMPILE_OK, results))
 
 if __name__ == "__main__": unittest.main()
