@@ -1,0 +1,6 @@
+EXCEPTION_FLUSH_DEBUG_FAILED: halt pulse during FLUSH_WB was lost or interrupt won early
+EXCEPTION_FLUSH_DEBUG_FAILED: controller did not reach expected state
+EXCEPTION_FLUSH_DEBUG_FAILED: retained exception-flush request did not enter debug
+[500000] %Fatal: controller_debug_irq_tb.sv:153: Assertion failed in controller_debug_irq_tb: TEST_FAIL: failures=3
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:153: Verilog $stop
+Aborting...

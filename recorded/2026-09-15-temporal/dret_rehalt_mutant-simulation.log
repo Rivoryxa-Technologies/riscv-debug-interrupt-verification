@@ -1,0 +1,7 @@
+DRET_REHALT_PRIORITY_FAILED: halt pulse was lost while DRET cleared debug mode
+DRET_REHALT_PRIORITY_FAILED: interrupt beat retained halt request after DRET
+DRET_REHALT_PRIORITY_FAILED: controller did not reach expected state
+DRET_REHALT_PRIORITY_FAILED: post-DRET request did not re-enter with HALTREQ cause
+[510000] %Fatal: controller_debug_irq_tb.sv:153: Assertion failed in controller_debug_irq_tb: TEST_FAIL: failures=4
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:153: Verilog $stop
+Aborting...

@@ -1,0 +1,7 @@
+STALLED_FETCH_FAULT_PRIORITY_FAILED: stalled fetch fault did not beat interrupt and save cause
+STALLED_FETCH_FAULT_PRIORITY_FAILED: controller did not reach expected state
+STALLED_FETCH_FAULT_PRIORITY_FAILED: fetch fault redirect was not preserved through FLUSH_WB
+EXCEPTION_FLUSH_DEBUG_FAILED: halt pulse disturbed the active exception redirect
+[480000] %Fatal: controller_debug_irq_tb.sv:153: Assertion failed in controller_debug_irq_tb: TEST_FAIL: failures=4
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:153: Verilog $stop
+Aborting...

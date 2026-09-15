@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-09-15-temporal",
+  "upstream_url": "https://github.com/openhwgroup/cv32e40p.git",
+  "upstream_revision": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+  "observed_revision": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+  "source_revision_match": true,
+  "scope": "cv32e40p_controller module-level temporal interactions among debug retention, decode stalls, qualified interrupts, fetch faults, and DRET",
+  "scenarios": [
+    "one-cycle debug request retained across invalid/stalled DECODE, then prioritized over a later qualified interrupt",
+    "fetch fault during invalid/stalled DECODE prioritized over a simultaneous qualified interrupt",
+    "halt request sampled during fetch-fault FLUSH_WB retained without disturbing redirect, then prioritized over held interrupt",
+    "DRET held by id_ready_i stall, followed by halt pulse at XRET_JUMP and re-entry before a held interrupt",
+    "single-step debug-cause sanity path"
+  ],
+  "assumptions": [
+    "single shared gated/ungated clock",
+    "pipeline stage validity is directly driven at the controller boundary",
+    "level-held qualified interrupt models pending outside controller",
+    "fetch-failed input remains asserted through FLUSH_WB and models detection outside controller",
+    "default COREV_PULP=0, COREV_CLUSTER=0, FPU=0"
+  ],
+  "python": "3.9.6",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701",
+  "timeout_seconds": 120.0,
+  "source_sha256": {
+    "cv32e40p_controller.sv": "858b172963e17529de0b40a5be6ddfdadfc60bdca967819e4fc558b0ed6d7b87",
+    "cv32e40p_pkg.sv": "3fee39d262ef44bff6ee00b591fe08830e5e35cdd1b9e5eb9eb06da6f6525805",
+    "controller_debug_irq_tb.sv": "cef718c0f3aabf239ac2193c1cfcea7a4bd916501e18afd3fd70111af8beab1a",
+    "tools/run.py": "be80ab0c3df6252b187bd33747ee7a38dc39013ee6a1676c3fdfabdf7962216f"
+  },
+  "setup_steps": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.010058
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.02502
+    }
+  ],
+  "variants": [
+    {
+      "name": "correct",
+      "synthetic_mutation": null,
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_correct",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.907606
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_correct/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.409414
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "stalled_debug_pulse_mutant",
+      "synthetic_mutation": "incorrectly qualifies the sticky halt-request latch with instruction validity",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_stalled_debug_pulse_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/cv32e40p_controller_stalled_debug_pulse_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.592893
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_stalled_debug_pulse_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.459729
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "fetch_valid_coupling_mutant",
+      "synthetic_mutation": "incorrectly qualifies a fetch-fault indication with decode instruction validity",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_fetch_valid_coupling_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/cv32e40p_controller_fetch_valid_coupling_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.60919
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_fetch_valid_coupling_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.522658
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "exception_flush_debug_mutant",
+      "synthetic_mutation": "incorrectly drops a halt pulse sampled during exception FLUSH_WB",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_exception_flush_debug_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/cv32e40p_controller_exception_flush_debug_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.912202
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_exception_flush_debug_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.445239
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "dret_rehalt_mutant",
+      "synthetic_mutation": "incorrectly rejects a new halt pulse sampled as DRET clears debug mode",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_dret_rehalt_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/cv32e40p_controller_dret_rehalt_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 4.381912
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal/obj_dret_rehalt_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.45444
+      },
+      "expected_outcome": true
+    }
+  ],
+  "pass_marker": "TEST_PASS: upstream CV32E40P controller temporal debug/interrupt/exception scenarios verified",
+  "mutant_failure_markers": {
+    "stalled_debug_pulse_mutant": "PULSED_DEBUG_RETENTION_FAILED",
+    "fetch_valid_coupling_mutant": "STALLED_FETCH_FAULT_PRIORITY_FAILED",
+    "exception_flush_debug_mutant": "EXCEPTION_FLUSH_DEBUG_FAILED",
+    "dret_rehalt_mutant": "DRET_REHALT_PRIORITY_FAILED"
+  },
+  "overall_pass": true
+}
