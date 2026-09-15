@@ -1,0 +1,4 @@
+BOUNDARY_CASE_FAILED_XRET_DURING: held interrupt acknowledged before post-DRET halt
+[131000] %Fatal: controller_boundary_matrix_tb.sv:47: Assertion failed in controller_debug_irq_tb.fail: TEST_FAIL
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:47: Verilog $stop
+Aborting...

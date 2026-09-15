@@ -1,0 +1,6 @@
+BOUNDARY_EXERCISE: FLUSH_AFTER pulse_position=DECODE_AFTER_FETCH_FAULT_FLUSH_WB pulse_width_cycles=1 stall_length=1 sampled_request=1 service_order=halt_before_irq
+BOUNDARY_CASE_PASS: FLUSH_AFTER outcome=halt_before_irq
+- /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:224: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 100ns; walltime 0.000 s; speed 3.704 ms/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 2 MB

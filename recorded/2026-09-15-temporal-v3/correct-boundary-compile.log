@@ -1,0 +1,214 @@
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'ctrl_busy_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:43:23: ... Location of port declaration
+   43 |   output logic        ctrl_busy_o,                 
+      |                       ^~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'is_decoding_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:44:23: ... Location of port declaration
+   44 |   output logic        is_decoding_o,               
+      |                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'deassert_we_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:48:23: ... Location of port declaration
+   48 |   output logic        deassert_we_o,               
+      |                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'hwlp_mask_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:66:23: ... Location of port declaration
+   66 |   output logic        hwlp_mask_o,                 
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'instr_req_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:72:23: ... Location of port declaration
+   72 |   output logic        instr_req_o,                 
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'trap_addr_mux_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:78:23: ... Location of port declaration
+   78 |   output logic [1:0]  trap_addr_mux_o,             
+      |                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'hwlp_dec_cnt_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:89:29: ... Location of port declaration
+   89 |   output logic [1:0]        hwlp_dec_cnt_o,
+      |                             ^~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'hwlp_jump_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:91:29: ... Location of port declaration
+   91 |   output logic              hwlp_jump_o,
+      |                             ^~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'hwlp_targ_addr_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:92:29: ... Location of port declaration
+   92 |   output logic [31:0]       hwlp_targ_addr_o,
+      |                             ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'data_err_ack_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:100:23: ... Location of port declaration
+  100 |   output logic        data_err_ack_o,
+      |                       ^~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'apu_stall_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:111:23: ... Location of port declaration
+  111 |   output logic        apu_stall_o,
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'irq_id_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:126:23: ... Location of port declaration
+  126 |   output logic [4:0]  irq_id_o,
+      |                       ^~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'exc_cause_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:128:23: ... Location of port declaration
+  128 |   output logic [4:0]  exc_cause_o,
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'debug_p_elw_no_sleep_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:139:24: ... Location of port declaration
+  139 |   output logic         debug_p_elw_no_sleep_o,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'debug_wfi_no_sleep_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:140:24: ... Location of port declaration
+  140 |   output logic         debug_wfi_no_sleep_o,
+      |                        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'wake_from_sleep_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:146:23: ... Location of port declaration
+  146 |   output logic        wake_from_sleep_o,
+      |                       ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'csr_save_id_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:149:23: ... Location of port declaration
+  149 |   output logic        csr_save_id_o,
+      |                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'csr_save_ex_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:150:23: ... Location of port declaration
+  150 |   output logic        csr_save_ex_o,
+      |                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'csr_irq_sec_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:152:23: ... Location of port declaration
+  152 |   output logic        csr_irq_sec_o,
+      |                       ^~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'csr_restore_mret_id_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:153:23: ... Location of port declaration
+  153 |   output logic        csr_restore_mret_id_o,
+      |                       ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'csr_restore_uret_id_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:154:23: ... Location of port declaration
+  154 |   output logic        csr_restore_uret_id_o,
+      |                       ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'operand_a_fw_mux_sel_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:172:23: ... Location of port declaration
+  172 |   output logic [1:0]  operand_a_fw_mux_sel_o,      
+      |                       ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'operand_b_fw_mux_sel_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:173:23: ... Location of port declaration
+  173 |   output logic [1:0]  operand_b_fw_mux_sel_o,      
+      |                       ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'operand_c_fw_mux_sel_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:174:23: ... Location of port declaration
+  174 |   output logic [1:0]  operand_c_fw_mux_sel_o,      
+      |                       ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'halt_if_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:188:23: ... Location of port declaration
+  188 |   output logic        halt_if_o,
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'halt_id_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:189:23: ... Location of port declaration
+  189 |   output logic        halt_id_o,
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'misaligned_stall_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:191:23: ... Location of port declaration
+  191 |   output logic        misaligned_stall_o,
+      |                       ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'jr_stall_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:192:23: ... Location of port declaration
+  192 |   output logic        jr_stall_o,
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'load_stall_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:193:23: ... Location of port declaration
+  193 |   output logic        load_stall_o,
+      |                       ^~~~~~~~~~~~
+%Warning-PINMISSING: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:16:23: Instance has missing pin: 'perf_pipeline_stall_o'
+   16 |   cv32e40p_controller dut (
+      |                       ^~~
+                     /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:203:23: ... Location of port declaration
+  203 |   output logic        perf_pipeline_stall_o        
+      |                       ^~~~~~~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv:26:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   26 | package cv32e40p_pkg;
+      |         ^~~~~~~~~~~~
+                       /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:4:8: ... Location of module with timescale
+    4 | module controller_debug_irq_tb;
+      |        ^~~~~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv:31:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | module cv32e40p_controller import cv32e40p_pkg::*;
+      |        ^~~~~~~~~~~~~~~~~~~
+                       /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:4:8: ... Location of module with timescale
+    4 | module controller_debug_irq_tb;
+      |        ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-CASEOVERLAP: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:18:81: Case conditions overlap
+   18 |     .is_fetch_failed_i(is_fetch_failed_i), .illegal_insn_i(1'b0), .ecall_insn_i(1'b0),
+      |                                                                                 ^~~~
+                      /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv:20:76: ... Location of overlapping condition
+   20 |     .uret_dec_i(1'b0), .dret_dec_i(dret_dec_i), .wfi_i(1'b0), .ebrk_insn_i(1'b0),
+      |                                                                            ^~~~
+                      ... For warning description see https://verilator.org/warn/CASEOVERLAP?v=5.050
+                      ... Use "/* verilator lint_off CASEOVERLAP */" and lint_on around source to disable this message.
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Xclang -fno-pch-timestamp -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-int-in-bool-context -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unnecessary-virtual-specifier -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-vla-cxx-extension    -DVL_TIME_CONTEXT   -std=gnu++20 -c -o verilated.o /opt/homebrew/Cellar/verilator/5.050/share/verilator/include/verilated.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Xclang -fno-pch-timestamp -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-int-in-bool-context -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unnecessary-virtual-specifier -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-vla-cxx-extension    -DVL_TIME_CONTEXT   -std=gnu++20 -c -o verilated_timing.o /opt/homebrew/Cellar/verilator/5.050/share/verilator/include/verilated_timing.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Xclang -fno-pch-timestamp -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-int-in-bool-context -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unnecessary-virtual-specifier -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-vla-cxx-extension    -DVL_TIME_CONTEXT   -std=gnu++20 -c -o verilated_threads.o /opt/homebrew/Cellar/verilator/5.050/share/verilator/include/verilated_threads.cpp
+python3 /opt/homebrew/Cellar/verilator/5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vcontroller_debug_irq_tb.cpp Vcontroller_debug_irq_tb___024root__0.cpp Vcontroller_debug_irq_tb_std__03a__03asemaphore__Vclpkg__0.cpp Vcontroller_debug_irq_tb_std__03a__03aprocess__Vclpkg__0.cpp Vcontroller_debug_irq_tb__main.cpp Vcontroller_debug_irq_tb__ConstPool__0__Slow.cpp Vcontroller_debug_irq_tb___024root__Slow.cpp Vcontroller_debug_irq_tb___024root__0__Slow.cpp Vcontroller_debug_irq_tb___024unit__Slow.cpp Vcontroller_debug_irq_tb_std__Slow.cpp Vcontroller_debug_irq_tb_std__03a__03asemaphore__Vclpkg__Slow.cpp Vcontroller_debug_irq_tb_std__03a__03aprocess__Vclpkg__Slow.cpp Vcontroller_debug_irq_tb__Syms__Slow.cpp > Vcontroller_debug_irq_tb__ALL.cpp
+c++ -Os  -I.  -MMD -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include -I/opt/homebrew/Cellar/verilator/5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fbracket-depth=4096 -fcf-protection=none -Xclang -fno-pch-timestamp -Qunused-arguments -Wno-bool-operation -Wno-c++11-narrowing -Wno-constant-logical-operand -Wno-int-in-bool-context -Wno-non-pod-varargs -Wno-parentheses-equality -Wno-shadow -Wno-sign-compare -Wno-tautological-bitwise-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unnecessary-virtual-specifier -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable -Wno-vla-cxx-extension    -DVL_TIME_CONTEXT   -std=gnu++20 -c -o Vcontroller_debug_irq_tb__ALL.o Vcontroller_debug_irq_tb__ALL.cpp
+c++  -Wl,-U,__Z15vl_time_stamp64v,-U,__Z13sc_time_stampv,-U,_vlog_startup_routines   verilated.o verilated_timing.o verilated_threads.o Vcontroller_debug_irq_tb__ALL.a    -pthread -lpthread   -o Vcontroller_debug_irq_tb
+rm Vcontroller_debug_irq_tb__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701
+- Verilator: Built from 0.326 MB sources in 9 modules, into 0.426 MB in 13 C++ files needing 0.001 MB
+- Verilator: Walltime 3.831 s (elab=0.005, cvt=0.019, bld=3.793); cpu 0.037 s on 1 threads; allocated 18.719 MB

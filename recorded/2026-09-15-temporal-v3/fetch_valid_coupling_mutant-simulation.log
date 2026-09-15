@@ -1,0 +1,4 @@
+STALLED_FETCH_FAULT_PRIORITY_FAILED: stalled fetch fault did not beat interrupt and save cause
+[181000] %Fatal: controller_debug_irq_tb.sv:47: Assertion failed in controller_debug_irq_tb.fail: TEST_FAIL
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:47: Verilog $stop
+Aborting...

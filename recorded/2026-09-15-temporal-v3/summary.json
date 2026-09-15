@@ -1,0 +1,1024 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-09-15-temporal-v3",
+  "upstream_url": "https://github.com/openhwgroup/cv32e40p.git",
+  "upstream_revision": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+  "observed_revision": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+  "source_revision_match": true,
+  "scope": "cv32e40p_controller module-level temporal interactions among debug retention, decode stalls, qualified interrupts, fetch faults, and DRET",
+  "scenarios": [
+    "one-cycle debug request retained across invalid/stalled DECODE, then prioritized over a later qualified interrupt",
+    "fetch fault during invalid/stalled DECODE prioritized over a simultaneous qualified interrupt",
+    "halt request sampled during fetch-fault FLUSH_WB retained without disturbing redirect, then prioritized over held interrupt",
+    "DRET held by id_ready_i stall, followed by halt pulse at XRET_JUMP and re-entry before a held interrupt",
+    "single-step debug-cause sanity path",
+    "prior three-scenario smoke bench, including ordinary DRET followed by held-interrupt service, applied to correct RTL and every mutant"
+  ],
+  "assumptions": [
+    "single shared gated/ungated clock",
+    "pipeline stage validity is directly driven at the controller boundary",
+    "level-held qualified interrupt models pending outside controller",
+    "fetch-failed input remains asserted through FLUSH_WB and models detection outside controller",
+    "default COREV_PULP=0, COREV_CLUSTER=0, FPU=0"
+  ],
+  "python": "3.9.6",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701",
+  "timeout_seconds": 120.0,
+  "source_sha256": {
+    "cv32e40p_controller.sv": "858b172963e17529de0b40a5be6ddfdadfc60bdca967819e4fc558b0ed6d7b87",
+    "cv32e40p_pkg.sv": "3fee39d262ef44bff6ee00b591fe08830e5e35cdd1b9e5eb9eb06da6f6525805",
+    "controller_debug_irq_tb.sv": "b0a6f38dc790a0dd4901b0284e2f4a438ee7f2240b7681e9615d2b481da9a968",
+    "controller_debug_irq_smoke_tb.sv": "b95bd6a177e49d272cbc6b4204a9e955e8e313f4400a6281b8438caf4c896479",
+    "controller_boundary_matrix_tb.sv": "c8953907030bef87abde3bd404b3487d2bad7d106b7512b298a08257c23163a2",
+    "tools/run.py": "b97a904d93c9b37e6f2caf416c9113a940198c9d44ea20f0314fc9bdfca28de0"
+  },
+  "setup_steps": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.009306
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.011608
+    }
+  ],
+  "variants": [
+    {
+      "name": "correct",
+      "synthetic_mutation": null,
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_correct",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.511021
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_correct/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.15798
+      },
+      "ordinary_smoke_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_correct",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_smoke_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.417761
+      },
+      "ordinary_smoke_simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_correct/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.266813
+      },
+      "boundary_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/cv32e40p_controller.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.882535
+      },
+      "boundary_cases": [
+        {
+          "scenario_id": "STALL_0",
+          "expected_metadata": {
+            "pulse_position": "DECODE_VALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_VALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=STALL_0"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.461419
+          }
+        },
+        {
+          "scenario_id": "STALL_1",
+          "expected_metadata": {
+            "pulse_position": "DECODE_INVALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_INVALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=STALL_1"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.008607
+          }
+        },
+        {
+          "scenario_id": "STALL_3",
+          "expected_metadata": {
+            "pulse_position": "DECODE_INVALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 3,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_INVALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 3,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=STALL_3"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.005062
+          }
+        },
+        {
+          "scenario_id": "FETCH_VALID",
+          "expected_metadata": {
+            "pulse_position": "none",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": false,
+            "eventual_service_order": "exception_redirect"
+          },
+          "observed_exercise": {
+            "pulse_position": "none",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": false,
+            "eventual_service_order": "exception_redirect"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=FETCH_VALID"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.004659
+          }
+        },
+        {
+          "scenario_id": "FLUSH_BEFORE",
+          "expected_metadata": {
+            "pulse_position": "DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_BEFORE"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.003844
+          }
+        },
+        {
+          "scenario_id": "FLUSH_DURING",
+          "expected_metadata": {
+            "pulse_position": "FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_DURING"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.003024
+          }
+        },
+        {
+          "scenario_id": "FLUSH_AFTER",
+          "expected_metadata": {
+            "pulse_position": "DECODE_AFTER_FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_AFTER_FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_AFTER"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.003332
+          }
+        },
+        {
+          "scenario_id": "XRET_BEFORE",
+          "expected_metadata": {
+            "pulse_position": "DRET_FLUSH_WB_BEFORE_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "irq_after_dret"
+          },
+          "observed_exercise": {
+            "pulse_position": "DRET_FLUSH_WB_BEFORE_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "irq_after_dret"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=XRET_BEFORE"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.002835
+          }
+        },
+        {
+          "scenario_id": "XRET_DURING",
+          "expected_metadata": {
+            "pulse_position": "DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=XRET_DURING"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.003016
+          }
+        },
+        {
+          "scenario_id": "XRET_AFTER",
+          "expected_metadata": {
+            "pulse_position": "DECODE_AFTER_DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_AFTER_DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_correct/Vcontroller_debug_irq_tb",
+              "+CASE=XRET_AFTER"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.002505
+          }
+        }
+      ],
+      "artifact_sha256": {
+        "temporal_compile_log": "1e2f83be55aaf394aa59c3d88c224678244c67c0ab7472f31f0fd4c6ce570ed1",
+        "temporal_simulation_log": "c02d44e4860d0cd00fc60ba0dd999e459abd5415151068d9a4dd46d66b6ebc8a",
+        "ordinary_smoke_compile_log": "23038be479c7e49261b7d08039a00cc1164793f44c5df6b92e5bacc2d0ff1fcf",
+        "ordinary_smoke_simulation_log": "547b3f63e1b4204ecb4bc4ffe649a2a03fc052ee45a5febd7e6a3f9a5883e652",
+        "boundary_compile_log": "6ebd1112afee6049c2b2c3aae622c0bf3f20bf284e96ded3136cce3c2ada07fc",
+        "boundary_STALL_0": "153972e5d69dfc9b3984042940e45f5dd4575d0c7d2cd20a383dd10a0d844410",
+        "boundary_STALL_1": "256b1c76eab83e971c7c97e5be013b8f477e7e2c9a90d3cff22794035f8cd0d0",
+        "boundary_STALL_3": "c0fdd4ef5f5a4d16ba1206b06f0ac7195ef56a495957a5d4cc40fc9682418d19",
+        "boundary_FETCH_VALID": "4721fb20382b4281721c60d0fb9bf977e5c011fd9311a4912ecbf25c3866f464",
+        "boundary_FLUSH_BEFORE": "5b73c18aef5dabcab8bbcbdd2fde8b9def01c5a15eeea67b4791df4f976ced94",
+        "boundary_FLUSH_DURING": "3ac420b2a50f485dce990096951a31288f92796591badbb60f0eb934639cffc6",
+        "boundary_FLUSH_AFTER": "877665934158dc793639267383926167318619a6e032abd286a937950207f9e4",
+        "boundary_XRET_BEFORE": "1269e7970e8283dc91899aef7f188110f922b2180c42b321ba2e113bc5a55727",
+        "boundary_XRET_DURING": "25e47815a368e154851f3c76d9c1c4a627670fa17b0809b5cf0a632785b0c2fd",
+        "boundary_XRET_AFTER": "c226a9af732fa37b057e7ddef80b39d705a8769ab1a1f45d4ae45e58beeb786d"
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "stalled_debug_pulse_mutant",
+      "synthetic_mutation": "incorrectly qualifies the sticky halt-request latch with instruction validity",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_stalled_debug_pulse_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_stalled_debug_pulse_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.472253
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_stalled_debug_pulse_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.179221
+      },
+      "ordinary_smoke_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_stalled_debug_pulse_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_stalled_debug_pulse_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_smoke_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.494949
+      },
+      "ordinary_smoke_simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_stalled_debug_pulse_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.174399
+      },
+      "boundary_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_stalled_debug_pulse_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_stalled_debug_pulse_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.851487
+      },
+      "boundary_cases": [
+        {
+          "scenario_id": "STALL_0",
+          "expected_metadata": {
+            "pulse_position": "DECODE_VALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_VALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_stalled_debug_pulse_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=STALL_0"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.179898
+          }
+        },
+        {
+          "scenario_id": "STALL_3",
+          "expected_metadata": {
+            "pulse_position": "DECODE_INVALID",
+            "pulse_width_cycles": 1,
+            "stall_length": 3,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": null,
+          "expected_outcome": "target_fail",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_stalled_debug_pulse_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=STALL_3"
+            ],
+            "returncode": 1,
+            "timed_out": false,
+            "seconds": 0.003427
+          }
+        }
+      ],
+      "artifact_sha256": {
+        "temporal_compile_log": "92ed0aaafce9cc2fda3dc34dfc4fbdd438e198d7ce3b3d8f46163b9466fbfadc",
+        "temporal_simulation_log": "a43e309bc27d5dce4658e6025d0e14e478cbadb5ec115afe79da6f5786c044aa",
+        "ordinary_smoke_compile_log": "64dff9a57561b0bce4f59512b6f7129ed1953f3a5f4795d91fb45981f84be39e",
+        "ordinary_smoke_simulation_log": "2323d50473727fdeecd98ab7b1197a0138c151062f2f2585d2830f647e1f7f78",
+        "boundary_compile_log": "47b35b2bdaa3d47a55d1f0913082a4a534d4adcea28201380e8eb0318eb62919",
+        "boundary_STALL_0": "400c6b20f50fd19b9394755e990a1ca54ba65ddc0a8474ea8beba1445c428879",
+        "boundary_STALL_3": "899868597957b2dff81fdc185c068423233074e6e3adbabc4231b87370fc85a5",
+        "generated_mutant": "af002b192d89a52cf7ad4bff09f31819a15f30499b9c33ff06ea9180ecba2034"
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "fetch_valid_coupling_mutant",
+      "synthetic_mutation": "incorrectly qualifies a fetch-fault indication with decode instruction validity",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_fetch_valid_coupling_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_fetch_valid_coupling_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.459804
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_fetch_valid_coupling_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.183635
+      },
+      "ordinary_smoke_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_fetch_valid_coupling_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_fetch_valid_coupling_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_smoke_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.381269
+      },
+      "ordinary_smoke_simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_fetch_valid_coupling_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.258447
+      },
+      "boundary_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_fetch_valid_coupling_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_fetch_valid_coupling_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.780298
+      },
+      "boundary_cases": [
+        {
+          "scenario_id": "FETCH_VALID",
+          "expected_metadata": {
+            "pulse_position": "none",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": false,
+            "eventual_service_order": "exception_redirect"
+          },
+          "observed_exercise": {
+            "pulse_position": "none",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": false,
+            "eventual_service_order": "exception_redirect"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_fetch_valid_coupling_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=FETCH_VALID"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.220413
+          }
+        },
+        {
+          "scenario_id": "FLUSH_BEFORE",
+          "expected_metadata": {
+            "pulse_position": "DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": null,
+          "expected_outcome": "target_fail",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_fetch_valid_coupling_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_BEFORE"
+            ],
+            "returncode": 1,
+            "timed_out": false,
+            "seconds": 0.004169
+          }
+        }
+      ],
+      "artifact_sha256": {
+        "temporal_compile_log": "6fd39b4e58d766c892221f15334aecb0cde79f2a08474c44f0114a0947b8e8ff",
+        "temporal_simulation_log": "4c3f99cedfbf71e94a74f7f71329cce7d0ff2d5c092f8218ab8c1625ceb6a282",
+        "ordinary_smoke_compile_log": "84dd9778eb68a3552a07a012457571b9183eacbe989175fdecc25de86f656d3d",
+        "ordinary_smoke_simulation_log": "180c70da9abd5988314a643d9fc6e17c746ae73efe19d5db38dce29bc1cd3fae",
+        "boundary_compile_log": "b8e4a6cb25b469e8395875308232b24bce56824458e286c41314085ef0c06873",
+        "boundary_FETCH_VALID": "b7fd8d8700964dc3f20259fd9ef5d4743d5d00ddd67b6c9ce5265499d8758c24",
+        "boundary_FLUSH_BEFORE": "5948e88c275aa95298fcef6cea167ea37f605233f2b1687384a50671af53eeb1",
+        "generated_mutant": "d802b6162586f3a9d47f1b68c487643f8a3eaccb74242c16d06f683fc102a430"
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "exception_flush_debug_mutant",
+      "synthetic_mutation": "incorrectly drops a halt pulse sampled during exception FLUSH_WB",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_exception_flush_debug_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_exception_flush_debug_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.440449
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_exception_flush_debug_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.45417
+      },
+      "ordinary_smoke_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_exception_flush_debug_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_exception_flush_debug_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_smoke_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.430675
+      },
+      "ordinary_smoke_simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_exception_flush_debug_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.507526
+      },
+      "boundary_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_exception_flush_debug_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_exception_flush_debug_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.746026
+      },
+      "boundary_cases": [
+        {
+          "scenario_id": "FLUSH_BEFORE",
+          "expected_metadata": {
+            "pulse_position": "DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_WITH_FETCH_FAULT_BEFORE_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_exception_flush_debug_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_BEFORE"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.438812
+          }
+        },
+        {
+          "scenario_id": "FLUSH_DURING",
+          "expected_metadata": {
+            "pulse_position": "FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": null,
+          "expected_outcome": "target_fail",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_exception_flush_debug_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_DURING"
+            ],
+            "returncode": 1,
+            "timed_out": false,
+            "seconds": 0.002608
+          }
+        },
+        {
+          "scenario_id": "FLUSH_AFTER",
+          "expected_metadata": {
+            "pulse_position": "DECODE_AFTER_FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_AFTER_FETCH_FAULT_FLUSH_WB",
+            "pulse_width_cycles": 1,
+            "stall_length": 1,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_exception_flush_debug_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=FLUSH_AFTER"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.002626
+          }
+        }
+      ],
+      "artifact_sha256": {
+        "temporal_compile_log": "160ad8bd5c45a1baf25b6dee7301d45fd796e068db516938a9b64169a0601db6",
+        "temporal_simulation_log": "380ec266017b86e37aa152ce070b65f05306fbf9b314ca06b196b7ab18076a80",
+        "ordinary_smoke_compile_log": "7cbf9ffab0f113f0b1c44e1458374284d5c16474b6f051a0cf67bbcc0a9d6078",
+        "ordinary_smoke_simulation_log": "409316e4ef73d48b9cb7776231713445a96b8b790af0b35abb711530017095b8",
+        "boundary_compile_log": "fdec3800597b7c8c0586b03858cb57fc202ff05bf02b3ed77fe569e24f72f9d9",
+        "boundary_FLUSH_BEFORE": "5fa71c2bcbfb86cc757f7db969e10103cf80cb3fc2c607bd6f26814e4f49c3f5",
+        "boundary_FLUSH_DURING": "70f8079b0eef3cbecaf93a7f3a664ab22c5e09371462408024a60b80fcb2b91f",
+        "boundary_FLUSH_AFTER": "1a039023c0a95efa2aff09a70cd64b40105d3fdff65688ece8ee89b8c4413078",
+        "generated_mutant": "3cb8f526fd5af8d8385c3fe1631ec13374d8d6586ccc1f5cda9541f67e5fe6b6"
+      },
+      "expected_outcome": true
+    },
+    {
+      "name": "dret_rehalt_mutant",
+      "synthetic_mutation": "incorrectly rejects a new halt pulse sampled as DRET clears debug mode",
+      "compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_dret_rehalt_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_dret_rehalt_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.411552
+      },
+      "simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_dret_rehalt_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 1,
+        "timed_out": false,
+        "seconds": 0.50912
+      },
+      "ordinary_smoke_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_dret_rehalt_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_dret_rehalt_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_smoke_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.436379
+      },
+      "ordinary_smoke_simulation": {
+        "command": [
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_smoke_dret_rehalt_mutant/Vcontroller_debug_irq_tb"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 0.527406
+      },
+      "boundary_compile": {
+        "command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "-Wno-fatal",
+          "--top-module",
+          "controller_debug_irq_tb",
+          "-Mdir",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_dret_rehalt_mutant",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/third_party/cv32e40p/rtl/include/cv32e40p_pkg.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/cv32e40p_controller_dret_rehalt_mutant.sv",
+          "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_boundary_matrix_tb.sv"
+        ],
+        "returncode": 0,
+        "timed_out": false,
+        "seconds": 3.785081
+      },
+      "boundary_cases": [
+        {
+          "scenario_id": "XRET_BEFORE",
+          "expected_metadata": {
+            "pulse_position": "DRET_FLUSH_WB_BEFORE_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "irq_after_dret"
+          },
+          "observed_exercise": null,
+          "expected_outcome": "target_fail",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_dret_rehalt_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=XRET_BEFORE"
+            ],
+            "returncode": 1,
+            "timed_out": false,
+            "seconds": 0.456959
+          }
+        },
+        {
+          "scenario_id": "XRET_DURING",
+          "expected_metadata": {
+            "pulse_position": "DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": null,
+          "expected_outcome": "target_fail",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_dret_rehalt_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=XRET_DURING"
+            ],
+            "returncode": 1,
+            "timed_out": false,
+            "seconds": 0.007571
+          }
+        },
+        {
+          "scenario_id": "XRET_AFTER",
+          "expected_metadata": {
+            "pulse_position": "DECODE_AFTER_DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "observed_exercise": {
+            "pulse_position": "DECODE_AFTER_DRET_XRET_JUMP",
+            "pulse_width_cycles": 1,
+            "stall_length": 0,
+            "sampled_request": true,
+            "eventual_service_order": "halt_before_irq"
+          },
+          "expected_outcome": "pass",
+          "run": {
+            "command": [
+              "/Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/recorded/2026-09-15-temporal-v3/obj_boundary_dret_rehalt_mutant/Vcontroller_debug_irq_tb",
+              "+CASE=XRET_AFTER"
+            ],
+            "returncode": 0,
+            "timed_out": false,
+            "seconds": 0.004183
+          }
+        }
+      ],
+      "artifact_sha256": {
+        "temporal_compile_log": "0d128eed2eed7480cf5ac7f2a6d0f5f549c35792e0f04ab55b243babd972554b",
+        "temporal_simulation_log": "dcf386ec4ae9448cd2ef80fa37c0cfccedc8a4e564abb826ee3ebda613828c04",
+        "ordinary_smoke_compile_log": "69d5c8794807458b9d505f26c18fa98225bc0e32b34923cbfc7c053c6e3ac1f6",
+        "ordinary_smoke_simulation_log": "ea01f250d8b5837bf4526d68528aaf480c4b1623919b581ccd5ce18071aa3841",
+        "boundary_compile_log": "c35a096249715c60830b6df63c3f8f69c919d40a581cc12eede5393022c6e16a",
+        "boundary_XRET_BEFORE": "9bb521a9060b22c52fbceb00997861e867b46ace5191355dd78575e128316dee",
+        "boundary_XRET_DURING": "80548c169b1cdca3b838e40381cd2b125686d533a8da49f7d994b01d1e07c6c1",
+        "boundary_XRET_AFTER": "d5861145257cd5008028fd37d8ed8dca71267a8d58bc6888768e8d65750d23bd",
+        "generated_mutant": "57a4d046a9ce18b27e7d6395a945127c3d04edf4bc656fcd83c2831dd9e1a2c0"
+      },
+      "expected_outcome": true
+    }
+  ],
+  "pass_marker": "TEST_PASS: upstream CV32E40P controller temporal debug/interrupt/exception scenarios verified",
+  "ordinary_smoke_pass_marker": "TEST_PASS: upstream CV32E40P controller debug/interrupt/exception scenarios verified",
+  "mutant_failure_markers": {
+    "stalled_debug_pulse_mutant": "PULSED_DEBUG_RETENTION_FAILED",
+    "fetch_valid_coupling_mutant": "STALLED_FETCH_FAULT_PRIORITY_FAILED",
+    "exception_flush_debug_mutant": "EXCEPTION_FLUSH_DEBUG_FAILED",
+    "dret_rehalt_mutant": "DRET_REHALT_PRIORITY_FAILED"
+  },
+  "overall_pass": true
+}

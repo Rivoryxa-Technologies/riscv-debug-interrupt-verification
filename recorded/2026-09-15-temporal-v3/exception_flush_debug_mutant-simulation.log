@@ -1,0 +1,4 @@
+EXCEPTION_FLUSH_DEBUG_FAILED: halt pulse during FLUSH_WB was lost or interrupt won early
+[201000] %Fatal: controller_debug_irq_tb.sv:47: Assertion failed in controller_debug_irq_tb.fail: TEST_FAIL
+%Error: /Users/avishas/developer/rivoryxa-examples/riscv-debug-interrupt-verification/tb/controller_debug_irq_tb.sv:47: Verilog $stop
+Aborting...
