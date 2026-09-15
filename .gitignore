@@ -1,0 +1,6 @@
+third_party/cv32e40p/
+runs/*/
+runs/LATEST
+!runs/.gitkeep
+__pycache__/
+*.vvp

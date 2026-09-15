@@ -1,0 +1,17 @@
+name: verify
+on: [push, pull_request]
+jobs:
+  controller-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y verilator
+      - run: python3 tools/test_runner.py
+      - run: ./setup.sh
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riscv-debug-interrupt-evidence
+          path: runs/
+          if-no-files-found: error
