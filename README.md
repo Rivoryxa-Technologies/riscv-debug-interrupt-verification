@@ -71,3 +71,16 @@ The evidence covers only the named transitions, outputs, and relative ordering. 
 CV32E40P remains under its Solderpad Hardware License 0.51, with the upstream Apache License 2.0 option. See [THIRD_PARTY.md](THIRD_PARTY.md). This harness is Apache-2.0 licensed.
 
 Raw logs and machine-readable results from the final local reproduction are retained under [`recorded/2026-09-15-temporal-v3`](recorded/2026-09-15-temporal-v3/README.md). Earlier recorded directories remain as historical reproductions.
+
+---
+
+## More from Rivoryxa
+
+This repository is one public example. The method it demonstrates is applied to
+real OpenHW CORE-V issues in
+[core-v-investigation-reports](https://github.com/Rivoryxa-Technologies/core-v-investigation-reports):
+sixteen public GitHub issues taken to a disposition, each with its evidence,
+proof scope and limits written down.
+
+All examples are listed on the
+[Rivoryxa Technologies profile](https://github.com/Rivoryxa-Technologies).
